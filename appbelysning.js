@@ -78,7 +78,18 @@ router.post('/', (req, res, next) => {
     
     
         }
-        Createdlamp()   
+        Createdlamp().then(lamp => { 
+
+            res.status(200).json({
+                message:'Sucess, new product',
+                result: results // ger resultatet
+        });
+    }).catch(error => {
+        res.status(500).json({
+            error: error // ger felmeddelande
+        });
+    });
+    
 });   
 
 router.patch('/:appbelysningName', (req, res) => {
