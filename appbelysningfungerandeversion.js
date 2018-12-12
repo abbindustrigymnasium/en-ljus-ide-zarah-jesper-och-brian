@@ -27,7 +27,7 @@ var getLight = cron.schedule('* * * * * *',  () => { // ska köras en gång per 
 
 getLight.start() // startar funktionen
 
-router.get('/:appbelysningName', (req, response) => { //ger för enskilt id
+router.get('/:appbelysningName', (req, res) => { //ger för enskilt id
     var found=false;
     var lampNameValue;
 
@@ -37,6 +37,7 @@ router.get('/:appbelysningName', (req, response) => { //ger för enskilt id
             lampNameValue = element; // ger variabeln värdena för visst id
         }
     
+    });
         if(found!= true) {
             res.status(200).json({name: "Lampan finns ej.",
         message: "Testa att skicka med post istället och kolla stavfel!"}) // felmeddelande
@@ -47,7 +48,6 @@ router.get('/:appbelysningName', (req, response) => { //ger för enskilt id
             res.status(200).json(lampNameValue); // skickar status och resultatet
 
         }
-    });
 });
 
 router.post('/', (req, res, next) => {
@@ -57,15 +57,15 @@ router.post('/', (req, res, next) => {
          påav: req.body.påav,
          varm: req.body.varm,
          kall: req.body.kall,
-         ljusstryrka: req.body.ljusstyrka
+         ljusstryrka: req.body.ljusstryrka
         };
     
         var Createdlamp = function(){
             return new Promise(function(resolve,reject){
     
-                var lamp = [ljuside.name, ljuside.påav, ljuside.varm, ljuside.kall, ljuside.ljusstyrka];
+                var lamp = [ljuside.name, ljuside.påav, ljuside.varm, ljuside.kall, ljuside.ljusstryrka];
                 console.log(lamp);
-                con.query('INSERT INTO appbelysing (name, påav, varm, kall, ljusstryrka) VALUES ?',[[lamp]], function (err, results) {
+                con.query('INSERT INTO appbelysning (name, påav, varm, kall, ljusstryrka) VALUES ?',[[lamp]], function (err, results) {
                     console.log(results);
                     if (err) 
                     return reject (err);
@@ -78,23 +78,34 @@ router.post('/', (req, res, next) => {
     
     
         }
-        Createdlamp()   
+        Createdlamp().then(lamp => { 
+
+            res.status(200).json({
+                message:'Sucess, new product',
+                lamp: lamp // ger resultatet
+        });
+    }).catch(error => {
+        res.status(500).json({
+            error: error // ger felmeddelande
+        });
+    });     
 });   
 
 router.patch('/:appbelysningName', (req, res) => {
 
     const lampa = {
-        name: req.body.name,
+        name: req.params.appbelysningName,
         påav: req.body.påav,
         varm: req.body.varm,
         kall: req.body.kall,
-        ljusstyrka: req.body.ljusstyrka,
+        ljusstryrka: req.body.ljusstryrka,
     }
+const data = [lampa.påav, lampa.varm, lampa.kall, lampa.ljusstryrka, lampa.name];
 
     var updatelampa = function() {
         return new Promise(function(resolve, reject) {
             
-            con.query('UPDATE `appbelysning` SET `name`=[value-1],`påav`=[value-2],`varm`=[value-3],`kall`=[value-4],`ljusstryrka`=[value-5] WHERE `name` = ?', [[lampa]], function (error, result) {
+            con.query('UPDATE `appbelysning` SET `påav`= ?,`varm`= ?,`kall`= ?,`ljusstryrka`= ? WHERE `name` = ?', data, function (error, result) {
                 if (error)
                 return reject(error);
                 else
