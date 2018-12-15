@@ -68,7 +68,7 @@ router.patch('/:tidName', (req, res) => {
 });
 
 var patchTime = cron.schedule('* * * * * *',  () => { // ska köras en gång per sekund
-    con.query('UPDATE `tid` WHERE `name` = klocka', [[på]], function (error, response) { 
+    con.query('UPDATE `tid` WHERE `name` = klocka', på, function (error, response) { 
     if (error) throw error;
     getDB = response; 
      
