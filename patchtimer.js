@@ -1,3 +1,5 @@
+//backend för timer. Fungerar ej.
+
 const express = require('express');
 const router = express();
 var mysql = require("mysql");
@@ -10,10 +12,10 @@ var con = mysql.createConnection({
 
 var cron = require('node-cron');
 
-var getTimeDB; // variabel som används med get by name
+var getTimeDB; 
 
 
-var getTime = cron.schedule('* * * * * *',  () => { // ska köras en gång per sekund
+var getTime = cron.schedule('* * * * * *',  () => { 
     con.query('SELECT * FROM tid', function (error, response) { 
     if (error) throw error;
     getTimeDB = response; 
@@ -25,16 +27,16 @@ var getTime = cron.schedule('* * * * * *',  () => { // ska köras en gång per s
 
 });
 
-getTime.start() // startar funktionen
+getTime.start()
 
-router.get('/:tidName', (req, res) => { //ger för enskilt id
+router.get('/:tidName', (req, res) => { 
     var found=false;
     var tidNameValue;
 
     getTimeDB.forEach(element => {
         if (element.name== req.params.tidName) {
-            found=true; // ändrar found till true om lampan finns
-            tidNameValue = element; // ger variabeln värdena för visst id
+            found=true; 
+            tidNameValue = element; 
         }
     
     });
@@ -48,14 +50,14 @@ router.get('/:tidName', (req, res) => { //ger för enskilt id
 
         else
         {
-            res.status(200).json(tidNameValue); // skickar status och resultatet
+            res.status(200).json(tidNameValue); 
 
         }
 });
 
 var getTimerDB;
 
-var getTimer = cron.schedule('* * * * * *',  () => { // ska köras en gång per sekund
+var getTimer = cron.schedule('* * * * * *',  () => { 
     con.query('SELECT * FROM timer', function (error, response) { 
     if (error) throw error;
     getTimerDB = response; 
@@ -67,28 +69,28 @@ var getTimer = cron.schedule('* * * * * *',  () => { // ska köras en gång per 
 
 });
 
-getTimer.start() // startar funktionen
+getTimer.start() 
 
-router.get('/:timerName', (req, res) => { //ger för enskilt id
+router.get('/:timerName', (req, res) => { 
     var found=false;
     var timerNameValue;
 
     getTimerDB.forEach(element => {
         if (element.name== req.params.timerName) {
-            found=true; // ändrar found till true om lampan finns
-            timerNameValue = element; // ger variabeln värdena för visst id
+            found=true; 
+            timerNameValue = element; 
         }
     
     });
         if(found!= true) {
             res.status(200).json
             ({name: "Lampan finns ej.",
-            message: "försök igen." // felmeddelande
+            message: "försök igen."
         })
     }
         else
         {
-            res.status(200).json(timerNameValue); // skickar status och resultatet
+            res.status(200).json(timerNameValue); 
 
         }
 });
@@ -141,6 +143,6 @@ router.patch('/:timerName', (req, res) => {
 
 
 
-module.exports = router;// exporterar till app.js
+module.exports = router;
 
 
